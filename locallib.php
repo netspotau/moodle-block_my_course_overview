@@ -163,5 +163,5 @@ function block_my_course_overview_get_sorted_courses() {
         }
     }
 
-    return $courses_sorted;
+    return array($courses_sorted, count($courses));
 }

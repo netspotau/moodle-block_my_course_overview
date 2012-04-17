@@ -18,6 +18,7 @@ M.block_my_course_overview.add_handles = function(Y) {
             }).plug(Y.Plugin.DDConstrained, {
                 constrain2node: '#course_list'
             });
+            dd.addHandle('.course_title .move');
         });
 
         var drops = Y.Node.all('#coursebox');

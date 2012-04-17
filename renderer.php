@@ -35,30 +35,38 @@ class block_my_course_overview_renderer extends plugin_renderer_base {
         }
         foreach ($courses as $course) {
             $cursor = ajaxenabled() && !$moving ? ' cursor' : '';
-            $html .= $OUTPUT->box_start('coursebox'.$cursor, "course-{$course->id}");
+            $html .= $OUTPUT->box_start('coursebox', "course-{$course->id}");
             $html .= html_writer::start_tag('div', array('class' => 'course_title'));
             if ($this->page->user_is_editing()) {
                 // Move icon.
+                $icon = ajaxenabled() ? 'i/move_2d' : 't/move';
                 $control = array('url' => new moodle_url('/my/index.php', array('course_moveid' => $course->id)),
-                    'icon' => 't/move', 'caption' => get_string('move'));
-                $html .= html_writer::tag('a',
-                            html_writer::empty_tag('img',  array('src' => $this->pix_url($control['icon'])->out(false), 'alt' => $control['caption'])),
-                                array('class' => 'icon move','title' => $control['caption'], 'href' => $control['url']));
+                    'icon' => $icon, 'caption' => get_string('move'));
+                if (ajaxenabled()) {
+                    $html .= html_writer::tag('div',
+                        html_writer::empty_tag('img',
+                            array('src' => $this->pix_url($control['icon'])->out(false),
+                                'alt' => $control['caption'], 'class' => 'icon cursor',
+                                'title' => $control['caption'])
+                        ), array('class' => 'move')
+                    );
+                } else {
+                    $html .= html_writer::tag('a',
+                             html_writer::empty_tag('img',  array('src' => $this->pix_url($control['icon'])->out(false), 'alt' => $control['caption'])),
+                                    array('class' => 'icon move','title' => $control['caption'], 'href' => $control['url']));
+                }
             }
-            if ($this->page->user_is_editing() && ajaxenabled() && !$moving) {
-                $html .= $OUTPUT->heading($course->fullname, 2, 'title');
-            } else {
-                $link = html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)), $course->fullname);
-                $html .= $OUTPUT->heading($link, 2, 'title');
-            }
+            $link = html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)), $course->fullname);
+            $html .= $OUTPUT->heading($link, 2, 'title');
             $html .= $OUTPUT->box('', 'flush');
+            $html .= html_writer::end_tag('div');
+
             if (isset($config->showchildren) && $config->showchildren) {
                 //list children here
                 if ($children = block_my_course_overview_get_child_shortnames($course->id)) {
                     $html .= html_writer::tag('span', $children, array('class' => 'coursechildren'));
                 }
             }
-            $html .= html_writer::end_tag('div');
 
             if (isset($overviews[$course->id])) {
                 $html .= $this->activity_display($course->id, $overviews[$course->id]);
@@ -127,6 +135,18 @@ class block_my_course_overview_renderer extends plugin_renderer_base {
         $select->set_label(get_string('numtodisplay', 'block_my_course_overview'));
         $output .= $OUTPUT->render($select);
 
+        $output .= $OUTPUT->box_end();
+        return $output;
+    }
+
+    public function hidden_courses($total) {
+        global $OUTPUT;
+        if ($total <= 0) {
+            return;
+        }
+        $output = $OUTPUT->box_start('notice');
+        $plural = $total > 1 ? 'plural' : '';
+        $output .= get_string('hiddencoursecount'.$plural, 'block_my_course_overview', $total);
         $output .= $OUTPUT->box_end();
         return $output;
     }

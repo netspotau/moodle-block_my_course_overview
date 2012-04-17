@@ -47,14 +47,14 @@
     left: 20px;
 }
 
-.editing .block_my_course_overview .coursebox.cursor {
+.editing .block_my_course_overview .coursebox .cursor {
     cursor: move;
+    margin-bottom: 2px;
 }
 
 .editing .block_my_course_overview .move {
     float: left;
     position: absolute;
-    bottom: 2px;
     width: 20px;
 }
 

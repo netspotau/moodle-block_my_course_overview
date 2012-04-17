@@ -62,7 +62,7 @@ class block_my_course_overview extends block_base {
         }
 
         profile_load_custom_fields($USER);
-        $courses_sorted = block_my_course_overview_get_sorted_courses();
+        list($courses_sorted, $courses_total) = block_my_course_overview_get_sorted_courses();
         $overviews = block_my_course_overview_get_overviews($courses_sorted);
 
         $renderer = $this->page->get_renderer('block_my_course_overview');
@@ -81,6 +81,7 @@ class block_my_course_overview extends block_base {
         } else {
             //for each course, build category cache
             $this->content->text .= $renderer->course_overview($courses_sorted, $overviews, $moving);
+            $this->content->text .= $renderer->hidden_courses($courses_total - count($courses_sorted));
             if ($this->page->user_is_editing() && ajaxenabled() && !$moving) {
                 $this->page->requires->js_init_call('M.block_my_course_overview.add_handles');
             }
